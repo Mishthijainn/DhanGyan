@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Zap, Flame, Wind, Droplets, Award, Star, Scroll, Trophy, Target, Calendar, CheckCircle, Milestone, Users, Activity } from 'lucide-react';
+import { Sparkles, Zap, Flame, Wind, Droplets, Award, Star, Scroll, Trophy, Target, CheckCircle, Milestone, Users } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 
 

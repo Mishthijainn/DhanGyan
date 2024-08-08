@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import { Sparkles, Zap, Flame, Wind, Droplets, Award, ChevronDown, Star, X, Scroll, Trophy, Target, Calendar, CheckCircle, Milestone } from 'lucide-react';
+import { Sparkles, Zap, Flame, Wind, Droplets, Award, ChevronDown, Star, X, Scroll, Trophy, Target, Calendar,Pencil, Milestone, Play,Share2 } from 'lucide-react';
 import GuildSystem from './GuildSystem';
 import DailyChallenge from './DailyChallenge.js';
 import PlayerProfile from './PlayerProfile';
 import TargetPractice from './FruitNinja.js';
 import AIChat from './AIChat';
-
+import LiveFileSharing from './LiveFileSharing.js';
+import AIScribble from './AIScribble';
 
 
 const PlayerTimeline = ({ player }) => {
@@ -305,6 +306,7 @@ const LeaderboardRow = ({ player, index, isExpanded, toggleExpand, onViewProfile
                 <QuestItem key={quest.id} quest={quest} />
               ))}
             </div>
+            
           </motion.div>
         )}
       </AnimatePresence>
@@ -360,6 +362,7 @@ const TypewriterText = ({ text }) => {
 
 
 const Leaderboard = () => {
+  const [isFileSharingOpen, setIsFileSharingOpen] = useState(false);
   const [players, setPlayers] = useState([]);
   const [sortBy, setSortBy] = useState('score');
   const [expandedId, setExpandedId] = useState(null);
@@ -367,12 +370,17 @@ const Leaderboard = () => {
   const [showMiniGame, setShowMiniGame] = useState(false);
   const [playerGuild, setPlayerGuild] = useState(null);
   const [dailyChallengeCompleted, setDailyChallengeCompleted] = useState(false);
+  const [showAIScribble, setShowAIScribble] = useState(false);
 
   useEffect(() => {
     setPlayers(generateRandomData());
   }, []);
 
-
+  const buttonVariants = {
+    hover: { scale: 1.05, transition: { type: 'spring', stiffness: 400, damping: 10 } },
+    tap: { scale: 0.95 },
+  };
+  
 
   const sortedPlayers = [...players].sort((a, b) => b[sortBy] - a[sortBy]);
 
@@ -391,22 +399,19 @@ const Leaderboard = () => {
   const handleChallengeComplete = () => {
     console.log("Challenge completed!");
     setDailyChallengeCompleted(true);
-    // Here you could update the player's score or add other rewards
     setPlayers(prevPlayers => {
       const updatedPlayers = [...prevPlayers];
       updatedPlayers[0] = {
         ...updatedPlayers[0],
-        score: updatedPlayers[0].score + 1000, // Add 1000 points for completing the daily challenge
+        score: updatedPlayers[0].score + 1000,
       };
       return updatedPlayers;
     });
   };
 
-
   const handleMiniGameScore = (score) => {
     console.log(`Mini-game score: ${score}`);
     setShowMiniGame(false);
-    // Update the player's score
     setPlayers(prevPlayers => {
       const updatedPlayers = [...prevPlayers];
       updatedPlayers[0] = {
@@ -423,7 +428,19 @@ const Leaderboard = () => {
 
   const handleLeaveGuild = () => {
     setPlayerGuild(null);
-    // i might want to update the player's data or send this information to a server
+  };
+
+  const handleAIScribbleScore = (score) => {
+    console.log(`AI Scribble score: ${score}`);
+    setShowAIScribble(false);
+    setPlayers(prevPlayers => {
+      const updatedPlayers = [...prevPlayers];
+      updatedPlayers[0] = {
+        ...updatedPlayers[0],
+        score: updatedPlayers[0].score + score,
+      };
+      return updatedPlayers;
+    });
   };
 
   return (
@@ -441,58 +458,84 @@ const Leaderboard = () => {
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
           className="text-3xl sm:text-5xl font-bold mb-6 sm:mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
         >
-          <TypewriterText text=" A     AYUSH Quest Leaderboard "/>
+          <TypewriterText text=" A      AYUSH Quest Leaderboard "/>
         </motion.h1>
         
         <DailyChallenge onComplete={handleChallengeComplete} />
         
         <GuildSystem 
-          player={players[0]} // Assuming the first player is the current user
+          player={players[0]}
           onJoinGuild={handleJoinGuild}
           onLeaveGuild={handleLeaveGuild}
         />
         
         <div className="flex flex-wrap justify-center mb-6">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
             onClick={() => setSortBy('score')}
             className={`flex items-center px-4 sm:px-6 py-2 sm:py-3 rounded-l-full font-bold text-sm sm:text-base ${
               sortBy === 'score' ? 'bg-purple-600' : 'bg-gray-700'
-            }`}
+            } transition-colors duration-300`}
           >
             <Star className="mr-2" size={16} /> Score
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
             onClick={() => setSortBy('wins')}
             className={`flex items-center px-4 sm:px-6 py-2 sm:py-3 font-bold text-sm sm:text-base ${
               sortBy === 'wins' ? 'bg-pink-600' : 'bg-gray-700'
-            }`}
+            } transition-colors duration-300`}
           >
             <Flame className="mr-2" size={16} /> Wins
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
             onClick={() => setSortBy('achievements')}
             className={`flex items-center px-4 sm:px-6 py-2 sm:py-3 rounded-r-full font-bold text-sm sm:text-base ${
               sortBy === 'achievements' ? 'bg-yellow-600' : 'bg-gray-700'
-            }`}
+            } transition-colors duration-300`}
           >
             <Trophy className="mr-2" size={16} /> Achievements
           </motion.button>
         </div>
         
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowMiniGame(true)}
-          className="mb-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"
-        >
-          <Target className="mr-2" size={16} /> Play Target Practice
-        </motion.button>
+        <div className="flex justify-center space-x-4 mb-6">
+          <motion.button
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            onClick={() => setShowMiniGame(true)}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center transition-colors duration-300"
+          >
+            <Target className="mr-2" size={16} /> Play Games
+          </motion.button>
+
+          <motion.button
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            onClick={() => setShowAIScribble(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center transition-colors duration-300"
+          >
+            <Pencil className="mr-2" size={16} /> AI Scribble
+          </motion.button>
+
+          <motion.button 
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            onClick={() => setIsFileSharingOpen(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center transition-colors duration-300"
+          >
+            <Share2 className="mr-2" size={16} /> Share
+          </motion.button>
+        </div>
         
         <AnimatePresence>
           {sortedPlayers.map((player, index) => (
@@ -507,21 +550,37 @@ const Leaderboard = () => {
           ))}
         </AnimatePresence>
       </motion.div>
+
       <AnimatePresence>
         {selectedPlayer && (
           <PlayerProfile player={selectedPlayer} onClose={handleCloseProfile} />
         )}
       </AnimatePresence>
+
       <AnimatePresence>
-  {showMiniGame && (
-    <TargetPractice onClose={() => setShowMiniGame(false)} onScoreUpdate={handleMiniGameScore} />
-  )}
-</AnimatePresence>
+        {showAIScribble && (
+          <AIScribble onClose={() => setShowAIScribble(false)} onScoreUpdate={handleAIScribbleScore} />
+        )}
+      </AnimatePresence>
+     
+      <AnimatePresence>
+        {showMiniGame && (
+          <TargetPractice onClose={() => setShowMiniGame(false)} onScoreUpdate={handleMiniGameScore} />
+        )}
+      </AnimatePresence>
       
-      {/* Move the AIChat component outside the main content div and give it a higher z-index */}
       <div className="fixed bottom-4 right-4 z-50">
         <AIChat />
       </div>
+
+      <AnimatePresence>
+        {isFileSharingOpen && (
+          <LiveFileSharing 
+            isOpen={isFileSharingOpen} 
+            onClose={() => setIsFileSharingOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
