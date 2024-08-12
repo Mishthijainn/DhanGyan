@@ -86,37 +86,13 @@ const AIChat = () => {
         fileInputRef.current.click();
     };
 
-    const handleImageUpload = async (event) => {
+    const handleImageUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
-          setImage(file);
-          setInput(`Analyze this image: ${file.name}`);
-  
-          try {
-            const imageData = await getBase64(file);
-            const response = await fetch(`${API_URL_VISION}?key=${API_KEY}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{
-                  parts: [
-                    { text: 'Analyzing the image...' },
-                    { inline_data: { mime_type: file.type, data: imageData.split(',')[1] } }
-                  ]
-                }]
-              }),
-            });
-
-            const data = await response.json();
-            const aiMessage = { text: parseMessage(data.candidates[0].content.parts[0].text), sender: 'ai' };
-            setMessages(prevMessages => [...prevMessages, aiMessage]);
-          } catch (error) {
-            console.error('Error analyzing image:', error);
-            const errorMessage = { text: 'Sorry, I encountered an error analyzing the image. Please try again.', sender: 'ai' };
-            setMessages(prevMessages => [...prevMessages, errorMessage]);
-          }
+            setImage(file);
+            setInput(`Analyze this image: ${file.name}`);
         }
-      };
+    };
 
     const {
         result,
@@ -151,15 +127,15 @@ const AIChat = () => {
         }
     }, [result]);
 
-    const Avatar = ({ children, className, isSender }) => (
-        <motion.div
-          className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden ${className}`}
-          animate={{
-            scale: [1, 1.05, 1],
-            rotate: [0, 5, -5, 0],
-          }}
-          transition={{ repeat: Infinity, duration: 5 }}
-        >
+    const Avatar = ({ children, className}) => (
+      <motion.div
+        className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden ${className}`}
+        animate={{
+          scale: [1, 1.05, 1],
+          rotate: [0, 5, -5, 0],
+        }}
+        transition={{ repeat: Infinity, duration: 5 }}
+      >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-full h-full">
           <defs>
             <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
@@ -172,11 +148,7 @@ const AIChat = () => {
               <stop offset="100%" stopColor="#FFCC70" />
             </linearGradient>
           </defs>
-          {isSender ? (
-            <circle cx="50" cy="50" r="40" fill={theme === 'dark' ? '#4158D0' : '#C850C0'} />
-          ) : (
-            <circle cx="50" cy="50" r="40" fill={theme === 'dark' ? '#C850C0' : '#4158D0'} />
-          )}
+          
           <circle cx="50" cy="50" r="48" fill="url(#glowGradient)">
             <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" />
           </circle>
@@ -250,7 +222,7 @@ const AIChat = () => {
 
         let weatherGreeting = '';
         if (weather && weather.current) {
-            weatherGreeting = `Hello I am prisha your Ai Whats your Name ?  The weather is currently ${weather.current.condition.text.toLowerCase()}.`;
+            weatherGreeting = `Hello I am Prisha your Ai Whats your Name ?  The weather is currently ${weather.current.condition.text.toLowerCase()}.`;
         }
 
         return `${timeGreeting}, ${userName}! ${weatherGreeting}`;
@@ -466,62 +438,58 @@ const AIChat = () => {
                                 ref={chatContainerRef}
                                 className={`flex-grow overflow-y-auto p-4 space-y-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}
                                 style={chatBackgroundStyle}
-                                >
+                            >
                                 <AnimatePresence>
-                                  {messages.map((message, index) => (
-                                    <motion.div
-                                      key={index}
-                                      initial={{ opacity: 0, y: 20 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      exit={{ opacity: 0, y: -20 }}
-                                      transition={{ delay: index * 0.1 }}
-                                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-end mb-4`}
-                                      >
-                                      {message.sender === 'ai' ? (
-                                          <Avatar className="mr-2" isSender={false} name="PRISM">AI</Avatar>
-                                      ) : (
-                                          <Avatar className="ml-2" isSender={true} name={userName}>
-                                              {userName[0].toUpperCase()}
-                                          </Avatar>
-                                      )}
-                                      <motion.div
-                                          whileHover={{ scale: 1.05 }}
-                                          className={`max-w-3/4 p-3 rounded-lg ${
-                                              message.sender === 'user'
-                                                  ? theme === 'dark' ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gradient-to-r from-green-400 to-blue-400'
-                                                  : theme === 'dark' ? 'bg-gray-700' : 'bg-white'
-                                          } ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}
-                                          >
-                                          {message.image && (
-                                              <img src={URL.createObjectURL(message.image)} alt="Uploaded" className="max-w-full h-auto rounded mb-2" />
-                                          )}
-                                          {message.text}
-                                          <div className="flex justify-end mt-2">
-                                              <motion.button
-                                                  whileHover={{ scale: 1.1 }}
-                                                  whileTap={{ scale: 0.9 }}
-                                                  onClick={() => copyToClipboard(message.text)}
-                                                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-800'} mr-2`}
-                                              >
-                                                  <Copy size={16} />
-                                              </motion.button>
-                                              <motion.button
-                                                  whileHover={{ scale: 1.1 }}
-                                                  whileTap={{ scale: 0.9 }}
-                                                  onClick={() => readAloud(message.text)}
-                                                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-800'}`}
-                                              >
-                                            <Volume2 size={16} />
-                                          </motion.button>
-                                        </div>
-                                      </motion.div>
-                                      {message.sender === 'user' && (
-                                        <Avatar className="ml-2" isSender={true}>
-                                          {userName ? userName[0].toUpperCase() : 'U'}
-                                        </Avatar>
-                                      )}
-                                    </motion.div>
-                                  ))}
+                                    {messages.map((message, index) => (
+                                        <motion.div
+                                            key={index}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-end mb-4`}
+                                        >
+                                            {message.sender === 'ai' && (
+                                                <Avatar className="mr-2">AI</Avatar>
+                                            )}
+                                            <motion.div
+                                                whileHover={{ scale: 1.05 }}
+                                                className={`max-w-3/4 p-3 rounded-lg ${
+                                                    message.sender === 'user'
+                                                        ? theme === 'dark' ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gradient-to-r from-green-400 to-blue-400'
+                                                        : theme === 'dark' ? 'bg-gray-700' : 'bg-white'
+                                                } ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}
+                                            >
+                                                {message.image && (
+                                                    <img src={URL.createObjectURL(message.image)} alt="Uploaded" className="max-w-full h-auto rounded mb-2" />
+                                                )}
+                                                {message.text}
+                                                <div className="flex justify-end mt-2">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => copyToClipboard(message.text)}
+                                                        className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-800'} mr-2`}
+                                                    >
+                                                        <Copy size={16} />
+                                                    </motion.button>
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => readAloud(message.text)}
+                                                        className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-800'}`}
+                                                    >
+                                                        <Volume2 size={16} />
+                                                    </motion.button>
+                                                </div>
+                                            </motion.div>
+                                            {message.sender === 'user' && (
+                                                <Avatar className="ml-2">
+                                                    {userName ? userName[0].toUpperCase() : 'U'}
+                                                </Avatar>
+                                            )}
+                                        </motion.div>
+                                    ))}
                                 </AnimatePresence>
                                 {isTyping && (
                                     <motion.div

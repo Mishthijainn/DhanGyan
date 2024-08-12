@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, CheckCircle, X, Gift, Clock, Zap, Award, TrendingUp, Shield, Sword, Bell } from 'lucide-react';
+import { Calendar, CheckCircle, X, Gift, Clock, Zap, Award, TrendingUp, Shield, Sword, Bell, CreditCard ,DollarSign, Briefcase } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const ParticleAnimation = ({ isVisible }) => {
@@ -141,25 +141,26 @@ const DailyChallenge = ({ onComplete }) => {
   const [streak, setStreak] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [difficultyLevel, setDifficultyLevel] = useState('normal');
-  const [character, setCharacter] = useState({ level: 1, xp: 0 });
+  const [financialIQ, setFinancialIQ] = useState({ level: 1, points: 0 });
 
   const challenges = {
     easy: [
-      { task: "Meditate for 5 minutes", total: 1, xp: 50, icon: Shield },
-      { task: "Do 15 jumping jacks", total: 15, xp: 50, icon: Zap },
-      { task: "Write a short gratitude note", total: 1, xp: 50, icon: CheckCircle },
+      { task: "Track your expenses for a day", total: 1, points: 50, icon: CreditCard },
+      { task: "Learn about one new financial term", total: 1, points: 50, icon: Briefcase },
+      { task: "Set up a savings goal", total: 1, points: 50, icon: TrendingUp },
     ],
     normal: [
-      { task: "Defeat 10 shadow creatures", total: 10, xp: 100, icon: Sword },
-      { task: "Solve 3 riddles from the Sphinx", total: 3, xp: 100, icon: TrendingUp },
-      { task: "Brew 5 magical potions", total: 5, xp: 100, icon: Gift },
+      { task: "Create a monthly budget", total: 5, points: 100, icon: TrendingUp },
+      { task: "Research and compare two investment options", total: 2, points: 100, icon: DollarSign },
+      { task: "Calculate your net worth", total: 1, points: 100, icon: Briefcase },
     ],
     hard: [
-      { task: "Slay the Cosmic Dragon", total: 1, xp: 200, icon: Sword },
-      { task: "Navigate the Maze of Illusions", total: 1, xp: 200, icon: TrendingUp },
-      { task: "Win the Arcane Tournament", total: 1, xp: 200, icon: Award },
+      { task: "Develop a 5-year savings plan", total: 1, points: 200, icon: Briefcase },
+      { task: "Analyze and optimize your investment portfolio", total: 1, points: 200, icon: TrendingUp },
+      { task: "Create a retirement savings strategy", total: 1, points: 200, icon: Award },
     ],
   };
+
 
   const selectChallenge = useCallback(() => {
     const selectedChallenges = challenges[difficultyLevel];
@@ -195,28 +196,52 @@ const DailyChallenge = ({ onComplete }) => {
         setShowReward(true);
         setStreak(streak + 1);
         onComplete && onComplete();
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+        triggerConfetti();
       }
     }
   };
 
+  const triggerConfetti = () => {
+    const duration = 5 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti(Object.assign({}, defaults, { 
+        particleCount, 
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+      }));
+      confetti(Object.assign({}, defaults, { 
+        particleCount, 
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+      }));
+    }, 250);
+  };
+
   const handleClaimReward = () => {
     setShowReward(false);
-    const earnedXP = challenge.xp;
-    setCharacter(prev => {
-      const newXP = prev.xp + earnedXP;
-      const xpForNextLevel = prev.level * 100;
-      if (newXP >= xpForNextLevel) {
-        addNotification(`Level Up! You've ascended to level ${prev.level + 1}!`);
-        return { level: prev.level + 1, xp: newXP - xpForNextLevel };
+    const earnedPoints = challenge.points;
+    setFinancialIQ(prev => {
+      const newPoints = prev.points + earnedPoints;
+      const pointsForNextLevel = prev.level * 100;
+      if (newPoints >= pointsForNextLevel) {
+        addNotification(`Level Up! Your Financial IQ is now level ${prev.level + 1}!`);
+        return { level: prev.level + 1, points: newPoints - pointsForNextLevel };
       }
-      return { ...prev, xp: newXP };
+      return { ...prev, points: newPoints };
     });
-    addNotification(`Epic victory! You've earned ${earnedXP} XP and a mythical artifact!`);
+    addNotification(`Great job! You've earned ${earnedPoints} Financial IQ Points!`);
 
     // Trigger a more elaborate confetti effect
     const duration = 3 * 1000;
@@ -276,7 +301,7 @@ const DailyChallenge = ({ onComplete }) => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
         <h3 className="text-xl sm:text-2xl font-bold flex items-center text-yellow-300 mb-2 sm:mb-0">
           <Calendar className="mr-2" size={24} />
-          Epic Daily Quest
+          Dhan Gyan Daily Challenge
         </h3>
         <div className="flex items-center">
           <Clock className="mr-2" size={20} />
@@ -290,20 +315,36 @@ const DailyChallenge = ({ onComplete }) => {
         </p>
         <div className="flex items-center">
           <Zap className="mr-2" size={20} />
-          <span className="text-lg font-semibold text-yellow-300">{challenge?.xp} XP</span>
+          <span className="text-lg font-semibold text-yellow-300">Financial IQ: {financialIQ.level}</span>
         </div>
       </div>
       <div className="relative pt-1">
-        <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-purple-200">
-          <div style={{ width: `${(progress / challenge?.total) * 100}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"></div>
-        </div>
+        <motion.div 
+          className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-purple-200"
+          initial={{ width: 0 }}
+          animate={{ width: '100%' }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div 
+            style={{ width: `${(progress / challenge?.total) * 100}%` }} 
+            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${(progress / challenge?.total) * 100}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </motion.div>
       </div>
+
       {!isCompleted && (
         <motion.button
           className="bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-bold py-2 px-4 rounded-full shadow-lg mb-4 sm:mb-0"
           onClick={handleProgress}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          animate={{
+            scale: [1, 1.05, 1],
+            transition: { duration: 1.5, repeat: Infinity }
+          }}
         >
           Advance Quest
         </motion.button>
@@ -316,12 +357,12 @@ const DailyChallenge = ({ onComplete }) => {
           </div>
           <div className="flex items-center">
             <Shield className="mr-2" size={20} />
-            <span className="text-lg font-semibold text-green-300">Level: {character.level}</span>
+            <span className="text-lg font-semibold text-green-300">Level: {challenge?.level}</span>
           </div>
           <div className="flex items-center">
-            <TrendingUp className="mr-2" size={20} />
-            <span className="text-lg font-semibold text-blue-300">XP: {character.xp}/{character.level * 100}</span>
-          </div>
+          <Award className="mr-2" size={20} />
+          <span className="text-lg font-semibold text-yellow-300">{challenge?.points} Points</span>
+        </div>
         </div>
         <div className="flex space-x-2">
           <button 
@@ -353,7 +394,7 @@ const DailyChallenge = ({ onComplete }) => {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -373,14 +414,14 @@ const DailyChallenge = ({ onComplete }) => {
                 transition={{ delay: 0.2 }}
               >
                <Gift className="mx-auto mb-6 text-purple-900" size={64} />
-                <h4 className="text-3xl font-bold text-purple-900 mb-4">Legendary Achievement!</h4>
-                <p className="text-purple-900 mb-6 text-lg">You've conquered the challenge and earned a mythical reward!</p>
+                <h4 className="text-3xl font-bold text-purple-900 mb-4">Financial Milestone Achieved!</h4>
+                <p className="text-purple-900 mb-6 text-lg">You've mastered this financial challenge and earned a reward!</p>
                 <motion.div className="flex justify-center space-x-4">
                   <PulsingButton
                     className="bg-purple-800 hover:bg-purple-900 text-yellow-400 font-bold py-3 px-6 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105"
                     onClick={handleClaimReward}
                   >
-                    Claim Your Prize
+                    Claim Your Reward
                   </PulsingButton>
                   <motion.button
                     className="bg-transparent border-2 border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-yellow-400 font-bold py-3 px-6 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105"
@@ -454,16 +495,16 @@ const DailyChallenge = ({ onComplete }) => {
       </AnimatePresence>
 
 
-        <AnimatePresence>
-          {notifications.map(({ id, message }) => (
-            <motion.div
-              key={id}
-              className="fixed bottom-4 right-4 w-80 bg-black bg-opacity-70 text-white p-4 rounded-lg shadow-lg z-50"
-              initial={{ opacity: 0, y: 20, scale: 0.3 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.5 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            >
+      <AnimatePresence>
+        {notifications.map(({ id, message }) => (
+          <motion.div
+            key={id}
+            className="fixed top-4 right-4 w-80 bg-black bg-opacity-70 text-white p-4 rounded-lg shadow-lg z-50"
+            initial={{ opacity: 0, y: -20, scale: 0.3 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.5 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          >
               <div className="flex items-start justify-between">
                 <div className="flex items-start">
                   <Bell className="mr-2 mt-1" size={16} />

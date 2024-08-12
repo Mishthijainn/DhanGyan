@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Shield, Trophy, Star } from 'lucide-react';
-import { Canvas, useFrame, extend } from '@react-three/fiber';
+import { Users, BookOpen, TrendingUp, PiggyBank, Award } from 'lucide-react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
-import { MeshStandardMaterial } from 'three';
 
-extend({ MeshStandardMaterial })
-
-const GuildEmblem = ({ color, icon: Icon }) => {
+const FinancialEmblem = ({ color, icon: Icon }) => {
   const mesh = useRef();
   const [hovered, setHovered] = useState(false);
   
@@ -50,7 +47,7 @@ const GuildEmblem = ({ color, icon: Icon }) => {
   );
 };
 
-const GuildCard = ({ guild, onJoin, isActive }) => {
+const FinancialCommunityCard = ({ community, onJoin, isActive }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
@@ -61,35 +58,35 @@ const GuildCard = ({ guild, onJoin, isActive }) => {
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-purple-800 z-0" />
       <div className="relative z-10 h-48">
         <Canvas>
           <PerspectiveCamera makeDefault position={[0, 0, 5]} />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
-          <GuildEmblem color={guild.color} icon={guild.icon} />
+          <FinancialEmblem color={community.color} icon={community.icon} />
           <OrbitControls enableZoom={false} enablePan={false} />
           <Environment preset="sunset" />
         </Canvas>
       </div>
       <div className="relative z-20 p-4 text-white">
-        <h4 className="text-xl font-bold mb-2">{guild.name}</h4>
+        <h4 className="text-xl font-bold mb-2">{community.name}</h4>
         <p className="text-sm mb-2 flex items-center">
-          <Users className="mr-2" size={14} /> Members: {guild.members}
+          <Users className="mr-2" size={14} /> Members: {community.members}
         </p>
         <p className="text-sm mb-2 flex items-center">
-          <Trophy className="mr-2" size={14} /> Rank: {guild.rank}
+          <BookOpen className="mr-2" size={14} /> Focus: {community.focus}
         </p>
         <p className="text-sm mb-4 flex items-center">
-          <Star className="mr-2" size={14} /> Specialty: {guild.specialty}
+          <TrendingUp className="mr-2" size={14} /> Level: {community.level}
         </p>
         <motion.button
           onClick={() => setShowJoinModal(true)}
-          className="relative z-30 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+          className="relative z-30 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded shadow-md transition duration-300 ease-in-out transform hover:scale-105"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          Join Guild
+          Join Community
         </motion.button>
       </div>
       <AnimatePresence>
@@ -100,7 +97,7 @@ const GuildCard = ({ guild, onJoin, isActive }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <p className="text-white text-center">{guild.description}</p>
+            <p className="text-white text-center">{community.description}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -113,18 +110,18 @@ const GuildCard = ({ guild, onJoin, isActive }) => {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-gray-800 p-8 rounded-xl max-w-md w-full"
+              className="bg-white p-8 rounded-xl max-w-md w-full text-gray-800"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
-              <h3 className="text-2xl font-bold mb-4 text-center text-white">Join {guild.name}</h3>
-              <p className="text-white text-center mb-6">Are you sure you want to join this guild?</p>
+              <h3 className="text-2xl font-bold mb-4 text-center">Join {community.name}</h3>
+              <p className="text-center mb-6">Are you ready to boost your financial literacy with this community?</p>
               <div className="flex justify-center space-x-4">
                 <motion.button
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
                   onClick={() => {
-                    onJoin(guild);
+                    onJoin(community);
                     setShowJoinModal(false);
                   }}
                   whileHover={{ scale: 1.05 }}
@@ -149,53 +146,53 @@ const GuildCard = ({ guild, onJoin, isActive }) => {
   );
 };
 
-const GuildSystem = ({ player, onJoinGuild, onLeaveGuild }) => {
-  const [guilds, setGuilds] = useState([
-    { id: 1, name: "Dragon Slayers", members: 42, rank: 1, specialty: "Boss Fights", color: "#FF4500", icon: Shield, description: "Masters of epic battles, we take down the mightiest foes!" },
-    { id: 2, name: "Mystic Mages", members: 38, rank: 2, specialty: "Crafting", color: "#4B0082", icon: Star, description: "Weaving magic into every item, we create legendary artifacts." },
-    { id: 3, name: "Shadow Assassins", members: 35, rank: 3, specialty: "PvP", color: "#2F4F4F", icon: Trophy, description: "Swift and deadly, we rule the battlefield with unmatched skill." },
+const FinancialLiteracyCommunity = ({ player, onJoinGuild, onLeaveGuild }) => {
+  const [communities, setCommunities] = useState([
+    { id: 1, name: "Savings Champions", members: 523, focus: "Budgeting & Saving", level: "Beginner", color: "#4CAF50", icon: PiggyBank, description: "Master the art of budgeting and grow your savings!" },
+    { id: 2, name: "Investment Wizards", members: 412, focus: "Investing", level: "Intermediate", color: "#2196F3", icon: TrendingUp, description: "Learn investment strategies and grow your wealth." },
+    { id: 3, name: "Financial Freedom Seekers", members: 378, focus: "Debt Management", level: "Advanced", color: "#9C27B0", icon: Award, description: "Tackle debt and pave your way to financial independence." },
   ]);
-  const [playerGuild, setPlayerGuild] = useState(null);
-  const [activeGuild, setActiveGuild] = useState(0);
+  const [playerCommunity, setPlayerCommunity] = useState(null);
+  const [activeCommunity, setActiveCommunity] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const intervalRef = useRef(null);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      setActiveGuild((prev) => (prev + 1) % guilds.length);
+      setActiveCommunity((prev) => (prev + 1) % communities.length);
     }, 5000);
 
     return () => clearInterval(intervalRef.current);
-  }, [guilds.length]);
+  }, [communities.length]);
 
-  const handleJoinGuild = (guild) => {
-    setPlayerGuild(guild);
-    onJoinGuild(guild);
+  const handleJoinCommunity = (community) => {
+    setPlayerCommunity(community);
+    onJoinGuild(community);
     clearInterval(intervalRef.current);
     setShowConfirmation(true);
   };
 
-  const handleLeaveGuild = () => {
-    setPlayerGuild(null);
-    onLeaveGuild();
+  const handleLeaveCommunity = () => {
+    setPlayerCommunity(null);
+    onLeaveGuild(); // Fixed: Changed onLeaveCommunity to onLeaveGuild
   };
 
   return (
     <motion.div
-      className="bg-gray-900 p-6 rounded-2xl mb-8 shadow-2xl"
+      className="bg-gradient-to-br from-blue-900 to-purple-800 p-6 rounded-2xl mb-8 shadow-2xl"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <h3 className="text-2xl font-bold mb-6 flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-        <Shield className="mr-3" size={28} />
-        Epic Guild Halls
+      <h3 className="text-2xl font-bold mb-6 flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+        <Users className="mr-3" size={28} />
+        Financial Literacy Communities
       </h3>
       <AnimatePresence mode='wait'>
-        {playerGuild ? (
+        {playerCommunity ? (
           <motion.div
-            key="player-guild"
-            className="bg-gradient-to-r from-gray-800 to-gray-900 p-8 rounded-xl mb-6 shadow-inner"
+            key="player-community"
+            className="bg-white bg-opacity-10 p-8 rounded-xl mb-6 shadow-inner"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -205,53 +202,53 @@ const GuildSystem = ({ player, onJoinGuild, onLeaveGuild }) => {
               <PerspectiveCamera makeDefault position={[0, 0, 5]} />
               <ambientLight intensity={0.5} />
               <pointLight position={[10, 10, 10]} />
-              <GuildEmblem color={playerGuild.color} icon={playerGuild.icon} />
+              <FinancialEmblem color={playerCommunity.color} icon={playerCommunity.icon} />
               <Environment preset="sunset" />
               <OrbitControls enableZoom={false} enablePan={false} />
             </Canvas>
-            <h4 className="text-3xl font-bold mb-4 text-center">{playerGuild.name}</h4>
+            <h4 className="text-3xl font-bold mb-4 text-center text-white">{playerCommunity.name}</h4>
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="text-center">
-                <Users className="mx-auto mb-2" size={24} />
+                <Users className="mx-auto mb-2 text-green-400" size={24} />
                 <p className="text-sm text-gray-300">Members</p>
-                <p className="text-xl font-bold">{playerGuild.members}</p>
+                <p className="text-xl font-bold text-white">{playerCommunity.members}</p>
               </div>
               <div className="text-center">
-                <Trophy className="mx-auto mb-2" size={24} />
-                <p className="text-sm text-gray-300">Rank</p>
-                <p className="text-xl font-bold">{playerGuild.rank}</p>
+                <BookOpen className="mx-auto mb-2 text-blue-400" size={24} />
+                <p className="text-sm text-gray-300">Focus</p>
+                <p className="text-xl font-bold text-white">{playerCommunity.focus}</p>
               </div>
               <div className="text-center">
-                <Star className="mx-auto mb-2" size={24} />
-                <p className="text-sm text-gray-300">Specialty</p>
-                <p className="text-xl font-bold">{playerGuild.specialty}</p>
+                <TrendingUp className="mx-auto mb-2 text-purple-400" size={24} />
+                <p className="text-sm text-gray-300">Level</p>
+                <p className="text-xl font-bold text-white">{playerCommunity.level}</p>
               </div>
             </div>
-            <p className="text-center mb-6">{playerGuild.description}</p>
+            <p className="text-center mb-6 text-white">{playerCommunity.description}</p>
             <motion.button
-              onClick={handleLeaveGuild}
+              onClick={handleLeaveCommunity}
               className="block w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Leave Guild
+              Leave Community
             </motion.button>
           </motion.div>
         ) : (
           <motion.div
-            key="guild-selection"
+            key="community-selection"
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {guilds.map((guild, index) => (
-              <GuildCard
-                key={guild.id}
-                guild={guild}
-                onJoin={handleJoinGuild}
-                isActive={index === activeGuild}
+            {communities.map((community, index) => (
+              <FinancialCommunityCard
+                key={community.id}
+                community={community}
+                onJoin={handleJoinCommunity}
+                isActive={index === activeCommunity}
               />
             ))}
           </motion.div>
@@ -266,20 +263,20 @@ const GuildSystem = ({ player, onJoinGuild, onLeaveGuild }) => {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-gray-800 p-8 rounded-xl max-w-md w-full text-center"
+              className="bg-white p-8 rounded-xl max-w-md w-full text-center"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
-              <h3 className="text-3xl font-bold mb-4 text-white">Congratulations!</h3>
-              <p className="text-xl text-white mb-6">You've joined the {playerGuild.name} guild!</p>
+              <h3 className="text-3xl font-bold mb-4 text-gray-800">Welcome to {playerCommunity.name}!</h3>
+              <p className="text-xl text-gray-600 mb-6">You've joined a community of financial learners. Get ready to boost your financial literacy!</p>
               <motion.button
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
                 onClick={() => setShowConfirmation(false)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Start Your Adventure
+                Start Your Financial Journey
               </motion.button>
             </motion.div>
           </motion.div>
@@ -289,4 +286,4 @@ const GuildSystem = ({ player, onJoinGuild, onLeaveGuild }) => {
   );
 };
 
-export default GuildSystem;
+export default FinancialLiteracyCommunity;
